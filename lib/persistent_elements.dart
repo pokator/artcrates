@@ -1,10 +1,11 @@
-import 'package:artcrates/crates.dart';
 import 'package:artcrates/database.dart';
 import 'package:artcrates/link_parsing.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+
+//Setting up the top bar and a side drawer.
 
 class PersistentDrawer extends StatefulWidget {
   const PersistentDrawer({super.key});
@@ -50,51 +51,64 @@ class PersistentDrawerState extends State<PersistentDrawer> {
     );
   }
 
-  //List<CrateOptions> _crateList = [];
+  //Creates the link adding dialog
   buildDialog(BuildContext context) {
+    Color _color = Colors.white;
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(20))),
-          title: const Text('Add a Photo'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                TextField(
-                  autofocus: true,
-                  controller: _linkController,
-                  decoration: const InputDecoration(
-                    hintText: 'Paste Link',
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: _color,
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20))),
+            title: const Text('Add a Photo'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  TextField(
+                    onChanged: (value) {
+                      if(value.toLowerCase().contains("twitter")) {
+                        setState(() {
+                          _color = Colors.lightBlue;
+                        });
+                      }
+                    },
+                    autofocus: true,
+                    controller: _linkController,
+                    decoration: const InputDecoration(
+                      hintText: 'Paste Link',
+                    ),
                   ),
-                ),
-                TagText(),
-              ],
+                  const TagText(),
+                ],
+              ),
             ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                String link = _linkController.text;
-                List<String> list = TagBox().values;
-                LinkParser parser = LinkParser(link, list);
-                parser.getArt();
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  _linkController.clear();
+                  Navigator.of(context).pop(false);
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  String link = _linkController.text;
 
-                // Do something with the name here
-                // Refresh the future
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Create'),
-            ),
-          ],
-        );
+                  List<String> list = TagBox().values;
+                  LinkParser parser = LinkParser(link, list);
+                  parser.getArt();
+
+                  // Do something with the name here
+                  // Refresh the future
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text('Create'),
+              ),
+            ],
+          );
+        });
       },
     );
   }

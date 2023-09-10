@@ -1,5 +1,4 @@
-
-import 'package:twitter_extractor/twitter_extractor.dart';
+// This class is responsible for getting the links (and other information about an art piece)
 
 class LinkParser{
   final String sourceLink;
@@ -13,9 +12,10 @@ class LinkParser{
       builder.write("/photo/1");
     }
     String tweetUrl = builder.toString();
-    Twitter tweet = await  TwitterExtractor.extract(tweetUrl);
-    //what we need: timestamp, image url, description, user, tags, num_images, original link
+    //what we need: timestamp, image url, user, hashtags, num_images, original link
 
-    // tweet.videos.single.type gets whether or not it is an image
+    //TODO: Act as if API written, create code based upon that to save to DB
+
+
   }
 }

@@ -2,9 +2,9 @@ import 'package:artcrates/persistent_elements.dart';
 import 'package:flutter/material.dart';
 import 'package:line_icons/line_icons.dart';
 import 'crates.dart';
-import 'all.dart';
 import 'database.dart';
-import 'feed.dart';
+
+//Main page initialization.
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,21 +22,36 @@ Future<void> main() async {
     await database.execute("DROP TABLE IF EXISTS '$table'");
   }
 
+
+  //For now - "all links table"
+  //TODO: make tables relational based on photo source - add a column for source (twitter, pixiv, tumblr, etc)
+
   await database.execute(
-    "CREATE TABLE 'All Links' (timestamp INTEGER PRIMARY KEY, link VARCHAR(255), description VARCHAR(255), user VARCHAR(255), tags TEXT, num_images INTEGER, original_link VARCHAR(255))",
+    "CREATE TABLE 'All Links' (timestamp INTEGER PRIMARY KEY, link VARCHAR(255) UNIQUE, source VARCHAR(255))",
   );
+
+  await database.execute(
+    "CREATE TABLE 'twitter' (link VARCHAR(255) PRIMARY KEY, tags TEXT, image_links VARCHAR(255))",
+  );
+
   await database.execute(
     "CREATE TABLE table_list (name VARCHAR(255) PRIMARY KEY);"
   );
+
+  await database.execute(
+      "CREATE TABLE supported_list (name VARCHAR(255) PRIMARY KEY);"
+  );
+
   await database.execute(
       "INSERT INTO table_list ('name') values (?);", ["All Links"]
   );
-  // var tables = database.rawQuery('SELECT * FROM sqlite_master WHERE name="allLinks";');
-  //
-  // print("next line has the tables");
-  // print(tables);
-  await database.execute("INSERT INTO 'All Links' ('timestamp', 'link', 'description', 'user', 'tags', 'num_images', 'original_link') values (?, ?, ?, ?, ?, ?, ?)", [DateTime.now().millisecondsSinceEpoch.toString(), "https://pbs.twimg.com/media/FuL9AI4WIAULdBp?format=jpg&name=large", "夜蘭おめでとう〜！！！💙✨ #夜蘭生誕祭2023 #Genshinlmpact #Yelan", "@yoppigu3", "all", 1, "https://twitter.com/brocccolihater/status/1649158615956090880/photo/1"]);
-  // print("executed.");
+
+  await database.execute(
+      "INSERT INTO supported_list ('name') values (?);", ["twitter"]
+  );
+
+  await database.execute("INSERT INTO 'All Links' ('timestamp', 'link', 'source') values (?, ?, ?)", [DateTime.now().millisecondsSinceEpoch.toString(), "https://twitter.com/brocccolihater/status/1649158615956090880", "twitter"]);
+  await database.execute("INSERT INTO 'twitter' ('link', 'tags', 'image_links') values (?, ?, ?)", ["https://twitter.com/brocccolihater/status/1649158615956090880", "ningguang[]beidou[]genshin", "FuL9AI4WIAULdBp?format=jpg"]);
   runApp(const MyApp());
 }
 
@@ -49,15 +64,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'ArtCrates',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.brown,
         scaffoldBackgroundColor: Colors.black54,
       ),
@@ -91,23 +97,6 @@ class _MainScreenState extends State<MainScreen> {
 
   void _onItemTapped(int index) {
     setState(() {
-      // now check if the chosen page has already been built
-      // if it hasn't, then it still is a SizedBox
-      // if (_pages[index] is SizedBox) {
-      //   if (index == 1) {
-      //     _pages[index] = MyPage(
-      //       1,
-      //       "Page 02",
-      //       MyKeys.getKeys().elementAt(index),
-      //     );
-      //   } else {
-      //     _pages[index] = MyPage(
-      //       1,
-      //       "Page 03",
-      //       MyKeys.getKeys().elementAt(index),
-      //     );
-      //   }
-      // }
       _selectedPage = index;
     });
   }
